@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 import matplotlib.pyplot as plt
-
 from scipy.stats import norm
 
 import Discount_Functions as disc_func
@@ -57,20 +56,36 @@ def calibrate_HW(kappa,sigma):
 def obj_func(x):
     kappa = x[0]
     sigma = x[1]
-    return np.sqrt(np.sum(((calibrate_HW(kappa,sigma) - cap_prices))**2)) * 10000
+    return np.sqrt(np.sum(((calibrate_HW(kappa,sigma) - cap_prices))**2))
 
 ## Calibrating Hull White
-kappa_inputs = [0, 0.2, 0.5, 1.0]
-sigma_inputs = [0, 0.05, 0.1, 0.5, 1.0]
+
+## Minimizationop
+kappa_inputs = [0.1, 0.2, 0.5, 1.0, 2.0, 4.0]
+sigma_inputs = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0]
+opt_res_arr = []
 for k in kappa_inputs:
     for s in sigma_inputs:
         opt_res = sp.optimize.minimize(obj_func,(k,s))
+        
+        opt_res_arr.append((opt_res.x,obj_func(opt_res.x)))
         print('initial guess:', (k,s))
         print('kappa, sigma = ',opt_res.x)
         print('error = ',obj_func(opt_res.x))
+        
+opt_res_df = pd.DataFrame(opt_res_arr)
+opt_res_df.columns = ['kappa and sigma', 'error']
+opt_res_df = opt_res_df.sort_values('error')
 
-kappa = 3
-sigma = -0.19
+
+# Pick the best parameters from above, sigma should take + sign
+kappa, sigma = opt_res_df.iloc[0,0]
+sigma = np.abs(sigma)
+plt.plot(calibrate_HW(kappa,sigma),label='HW Caplet Price')
+plt.plot(cap_prices,label='Actual Caplet Price')
+plt.legend()
+plt.show()
+
 t_range = np.arange(1.0/24.0, 30, 2.0/24.0)
 HW = hw.Hull_White()
 theta_arr = HW.Plot_Theta(t_range, kappa, sigma, coeff)
