@@ -2,9 +2,6 @@ from __future__ import print_function, division ##python 3 print function
 import numpy as np
 import scipy as sp
 import math
-from scipy.stats import norm
-import matplotlib.pyplot as plt
-
 
 
 ## Hull-White caplet price
@@ -17,9 +14,10 @@ def insta_f_derivative(t, coeff):
     return -(2*b + 6*c*t + 12*d*t**2 + 20*e*t**3)
 
 def fwd_vol_HW(kappa, sigma, T0, T1, t=0.0):
-    return np.sqrt(np.power(sigma,2.0) * (1.0-np.exp(-2.0*kappa*(T0-t))) / (2.0*kappa) * \
-                    np.power(1.0-np.exp(-kappa*(T1-T0)),2.0) / np.power(kappa,2.0))
-
+    #return np.sqrt(np.power(sigma,2.0) * (1.0-np.exp(-2.0*kappa*(T0-t))) / (2.0*kappa) * \
+    #                np.power(1.0-np.exp(-kappa*(T1-T0)),2.0) / np.power(kappa,2.0))
+    return np.sqrt(sigma**2 * (1 - np.exp(-2 * kappa * (T0 - t))) * ( 1- np.exp(-kappa *(T1-T0)))**2 / \
+                   (2 * kappa**3))
     
 class Hull_White:
     def __init__(self):
@@ -41,23 +39,7 @@ class Hull_White:
     def r_t(self, t, T, r, kappa, sigma, coeff):
         return -self.A(t,T,kappa,sigma, coeff)/(T-t) + \
         (1.0/kappa)*((1-np.exp(-kappa*(T-t)))/(T-t))*r
-    
-    def put(self,t,T,s,K,r,kappa,sigma, coeff):
-        sigma_z = np.sqrt(sigma**2/(2*kappa**3) * (1-np.exp(-2*kappa*(T-t))) * (1-np.exp(-kappa*(s-T)))**2)
-        d1 = np.log(self.Z(t,s,r,kappa,sigma, coeff)/(K * self.Z(t,T,r,kappa,sigma, coeff)))/sigma_z + sigma_z/2
-        d2 = d1 - sigma_z
-        return K*self.Z(t,T,r,kappa,sigma, coeff)*norm.cdf(-d2) - self.Z(t,s,r,kappa,sigma, coeff)*norm.cdf(-d1)
-        
-    def Plot_Theta(self, t_range, kappa, sigma, coeff):
-        theta_arr = []
-        for t in t_range:
-            theta_arr.append(self.theta(t, kappa, sigma, coeff))
-        plt.plot(t_range, theta_arr)
-        plt.title('Monthly theta(t)')
-        plt.xlabel('time (years)')
-        plt.ylabel('theta(t)')
-        return theta_arr
-     
+
     def Monte_Carlo(self, kappa, sigma, r0, T, dt, coeff, num_sims):
         np.random.seed(0)
         # need to account for prepayment spped of 150%

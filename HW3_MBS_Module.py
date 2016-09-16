@@ -17,7 +17,7 @@ import Hull_White as hw
 
 import imp
 hw = imp.reload(hw)
-
+disc_func = imp.reload(disc_func)
 
 def calibrate_HW(kappa,sigma):
     n = len(data_vol["Price/Vols"])
@@ -86,15 +86,34 @@ def get_libor_matrix_1m(r_matrix, num_sims, num_months):
     libor_rate_matrix = np.matrix(libor_rate_matrix)
     return libor_rate_matrix
 
-
     
-    
+def summer_index_func(t):
+    # starting from July, therefore plus 6
+    t = t + 6
+    return 1 if t%12 in [5,6,7,8] else 0
 
+def home_price_GBM(r_arr, H0):
+    iterations = len(r_arr)
+    H_arr = [H0]
+    H_anti_arr = [H0]
+    H = H0
+    H_anti = H0
 
-# Parameters setup
-r_cap = 0.0325
-short_rate = r0 = 0.01160
-delta = 0.25
+    q = 0.025
+    dt = 1/12
+    phi = 0.12
+    norm_arr = np.random.normal(0,1,size=iterations)    # normal random vars
+    norm_anti_arr = [-x for x in norm_arr] 
+
+    for i in range(iterations):
+        dH = (r_arr[i]-q) * H * dt + phi * H * norm_arr[i]
+        dH_anti = (r_arr[i]-q) * H * dt + phi * H * norm_anti_arr[i]
+        H += dH
+        H_anti += dH_anti
+        H_arr.append(H)
+        H_anti_arr.append(H_anti)
+
+    return 0.5 * (np.array(H_arr) + np.array(H_anti_arr))
 
 
 # Data files setup
@@ -110,10 +129,15 @@ print(z_OLS.beta)
 (a,b,c,d,e) = z_OLS.beta
 coeff = [a,b,c,d,e]
 
+# Parameters setup
+r_cap = 0.0325
+short_rate = r0 = 0.01160
+#r0 = -coeff[0]
+delta = 0.25
 
 ## Using the balck formula, translate to caplet price from vol
 cap_prices = disc_func.Black_formula(lambda T: disc_func.poly5_to_Z(z_OLS,T), \
-                                     data_vol["Maturity"], r_cap, delta, data_vol["Price/Vols"])
+                                     data_vol["Maturity"]-delta, r_cap, delta, data_vol["Price/Vols"])
 
 
 

@@ -69,7 +69,6 @@ data_frm.columns = ['id', 'age', 'spread_squared', 'spread', 'ltv', 'remaining_b
 
 ## FRM
 fixed_wac = 0.07419
-coupon_gap = 0.07419
 
 def frm_coupon_gap_helper(m):
     return fixed_wac - avg_libor_rate_10yr_lag_3m_arr[m]
