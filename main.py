@@ -8,84 +8,65 @@ Created on Thu Sep 15 10:01:24 2016
 
 import numpy as np
 import pandas as pd
-import scipy as sp
 import matplotlib.pyplot as plt
-from scipy.stats import norm
-
-import Discount_Functions as disc_func
 import Hull_White as hw
+import HW3_MBS_Module as myMBS
 
 import imp
 hw = imp.reload(hw)
+myMBS = imp.reload(myMBS)
 
-# Data files setup
-data_z = pd.read_csv("Discount_Factors.csv")
-data_vol = pd.read_csv("Caplet_Vols.csv")
-
-# Parameters setup
-r_cap = 0.0325
-short_rate = r0 = 0.01160
-delta = 0.25
 
 # Q1 Calibrate Hull White
-
-## Estimating coeff of term structure
-data_z["poly"] = np.log(data_z["Price"])
-z_OLS = disc_func.OLS(disc_func.power_5(data_z["Maturity"]), data_z["poly"])
-print("my estimation of coefficients are:")
-print(z_OLS.beta)
-(a,b,c,d,e) = z_OLS.beta
-coeff = [a,b,c,d,e]
-
-## Using the balck formula, translate to caplet price from vol
-cap_prices = disc_func.Black_formula(lambda T: disc_func.poly5_to_Z(z_OLS,T), \
-                                     data_vol["Maturity"], r_cap, delta, data_vol["Price/Vols"])
-
-def calibrate_HW(kappa,sigma):
-    n = len(data_vol["Price/Vols"])
-    vol_fwd = hw.fwd_vol_HW(kappa, sigma, data_z.loc[3:n+3-1,'Maturity'].values, \
-                            data_z.loc[4:n+4-1,'Maturity'].values)
-    Z0 = disc_func.poly5_to_Z(z_OLS,data_z.loc[3:n+3-1,'Maturity'].values)
-    Z1 = disc_func.poly5_to_Z(z_OLS,data_z.loc[4:n+4-1,'Maturity'].values)
-    M = 1.0 + r_cap * delta
-    K = 1.0 / M
-    d1 = np.log(Z1 / (K * Z0)) / vol_fwd + 0.5 * vol_fwd
-    d2 = d1 - vol_fwd
-    return M * (K * Z0 * norm.cdf(-d2) - Z1 * norm.cdf(-d1))
-
-def obj_func(x):
-    kappa = x[0]
-    sigma = x[1]
-    return np.sqrt(np.sum(((calibrate_HW(kappa,sigma) - cap_prices))**2))
-
-## Calibrating Hull White
-
-## Minimizationop
-kappa_inputs = [0.1, 0.2, 0.5, 1.0, 2.0, 4.0]
-sigma_inputs = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0]
-opt_res_arr = []
-for k in kappa_inputs:
-    for s in sigma_inputs:
-        opt_res = sp.optimize.minimize(obj_func,(k,s))
-        
-        opt_res_arr.append((opt_res.x,obj_func(opt_res.x)))
-        print('initial guess:', (k,s))
-        print('kappa, sigma = ',opt_res.x)
-        print('error = ',obj_func(opt_res.x))
-        
-opt_res_df = pd.DataFrame(opt_res_arr)
-opt_res_df.columns = ['kappa and sigma', 'error']
-opt_res_df = opt_res_df.sort_values('error')
-
+opt_res_df = myMBS.calibrate_HW_optimization_res()
 
 # Pick the best parameters from above, sigma should take + sign
 kappa, sigma = opt_res_df.iloc[0,0]
+#kappa, sigma = 0.45, 0.026
 sigma = np.abs(sigma)
-plt.plot(calibrate_HW(kappa,sigma),label='HW Caplet Price')
-plt.plot(cap_prices,label='Actual Caplet Price')
+plt.plot(myMBS.calibrate_HW(kappa,sigma),label='HW Caplet Price')
+plt.plot(myMBS.cap_prices,label='Actual Caplet Price')
 plt.legend()
 plt.show()
 
-t_range = np.arange(1.0/24.0, 30, 2.0/24.0)
+
+## Similate the LIBOR rate with Hull White
 HW = hw.Hull_White()
-theta_arr = HW.Plot_Theta(t_range, kappa, sigma, coeff)
+num_sims = 1000
+num_months = 315
+T = num_months/12
+dt = 1/12
+r_cap = 0.0325
+short_rate = r0 = 0.01160
+delta = 0.25
+coeff = myMBS.coeff
+
+## Monte Carlo Simulation
+cum_df_matrix, cum_df_anti_matrix, r_matrix, r_anti_matrix = HW.Monte_Carlo(kappa, sigma, r0, T+10, dt, coeff, num_sims)
+
+libor_rate_10yr_lag_3m_matrix = myMBS.get_libor_matrix_10yr_lag_3m(r_matrix, num_sims, num_months)
+libor_rate_10yr_lag_3m_anti_matrix = myMBS.get_libor_matrix_10yr_lag_3m(r_anti_matrix, num_sims, num_months)
+final_libor_rate_10yr_lag_3m_matrix = 0.5 * (libor_rate_10yr_lag_3m_matrix + libor_rate_10yr_lag_3m_anti_matrix)
+avg_libor_rate_10yr_lag_3m_arr = np.asarray(final_libor_rate_10yr_lag_3m_matrix.mean(0))[0]
+
+libor_rate_1m_matrix = myMBS.get_libor_matrix_1m(r_matrix, num_sims, num_months)
+libor_rate_1m_anti_matrix = myMBS.get_libor_matrix_1m(r_anti_matrix, num_sims, num_months)
+final_libor_rate_1m_matrix = 0.5 * (libor_rate_1m_matrix + libor_rate_1m_anti_matrix)
+avg_libor_rate_1m_arr = np.asarray(final_libor_rate_1m_matrix.mean(0))[0]
+
+plt.plot(avg_libor_rate_10yr_lag_3m_arr,label='LIBOR 10yr lag 3m')
+plt.plot(avg_libor_rate_1m_arr,label='LIBOR 1m')
+plt.legend()
+plt.show()
+
+
+
+## Q2
+hazard_params = [[0.0097, 1.5832, -100.0000, -0.2145], 
+                 [0.0194, 8.0000, 2.1237, np.nan],
+                 [0.0045, 1.8651, 38.6501, 0.0144],
+                 [0.0200, 8.0000, -0.0267, np.nan]]
+hazard_params_df = pd.DataFrame(hazard_params)
+hazard_params_df.columns = ['gamma', 'p', 'beta_1', 'beta_2']
+hazard_params_df['type'] = ['FRM prepayment','FRM default','ARM prepayment','ARM default']
+hazard_params_df

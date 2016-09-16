@@ -56,10 +56,9 @@ class Hull_White:
         plt.title('Monthly theta(t)')
         plt.xlabel('time (years)')
         plt.ylabel('theta(t)')
-        plt.savefig('theta(t) plot')
         return theta_arr
      
-    def Monte_Carlo_2(self, kappa, sigma, r0, T, dt, coeff, num_sims):
+    def Monte_Carlo(self, kappa, sigma, r0, T, dt, coeff, num_sims):
         np.random.seed(0)
         # need to account for prepayment spped of 150%
         iterations = int(T / dt)
@@ -86,7 +85,6 @@ class Hull_White:
                                 sigma*(math.sqrt(dt)*anti_arr[i])
                 r += delta_r
                 r_anti += anti_delta_r
-                
                 
                 r_arr.append(r)
                 r_anti_arr.append(r_anti)
