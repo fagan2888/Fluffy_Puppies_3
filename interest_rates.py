@@ -82,6 +82,7 @@ def get_libor_matrix_1m(r_matrix, num_sims, num_months):
     return libor_rate_matrix
 
 
+'''
 # Data files setup
 data_z = pd.read_csv("Discount_Factors.csv")
 data_vol = pd.read_csv("Caplet_Vols.csv")
@@ -105,8 +106,6 @@ delta = 0.25
 ## Using the balck formula, translate to caplet price from vol
 cap_prices = disc_func.Black_formula(lambda T: disc_func.poly5_to_Z(z_OLS,T), \
                                      data_vol["Maturity"]-delta, r_cap, delta, data_vol["Price/Vols"])
-
-
 
 # Q1 Calibrate Hull White
 
@@ -134,11 +133,11 @@ coeff = [-0.017913777607645898,
  2.1831624297643029e-08]
 kappa = 0.30490045697501322
 sigma = 0.020644080934538542
-'''
+
 
 ## Similate the LIBOR rate with Hull White
 HW = hw.Hull_White()
-num_sims = 1000
+num_sims = 100
 num_months = 315
 T = num_months/12
 dt = 1/12
