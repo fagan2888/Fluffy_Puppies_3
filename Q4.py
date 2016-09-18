@@ -66,19 +66,19 @@ recovery_rate = 0.40
 M2_total_buyer_payment = M2_premium # initial amount as upfront premium
 M5_total_buyer_payment = M5_premium 
 
-M2_CF_total = wf.CF_total[5,:,:]
-M2_CF_principal = wf.CF_principal[5]
-M2_CF_prepay = wf.CF_prepay[5]
-M2_CF_default = wf.CF_default[5]
-M2_CF_interest = wf.CF_interest[5]
-M2_CF_neg_int = wf.CF_neg_int[5]
+M2_CF_total = wf.CF_total[4,:,:]
+M2_CF_principal = wf.CF_principal[4]
+M2_CF_prepay = wf.CF_prepay[4]
+M2_CF_default = wf.CF_default[4]
+M2_CF_interest = wf.CF_interest[4]
+M2_CF_neg_int = wf.CF_neg_int[4]
 
-M5_CF_total = wf.CF_total[8]
-M5_CF_principal = wf.CF_principal[8]
-M5_CF_prepay = wf.CF_prepay[8]
-M5_CF_default = wf.CF_default[8]
-M5_CF_interest = wf.CF_interest[8]
-M5_CF_neg_int = wf.CF_neg_int[8]
+M5_CF_total = wf.CF_total[7]
+M5_CF_principal = wf.CF_principal[7]
+M5_CF_prepay = wf.CF_prepay[7]
+M5_CF_default = wf.CF_default[7]
+M5_CF_interest = wf.CF_interest[7]
+M5_CF_neg_int = wf.CF_neg_int[7]
 
 num_sims = M2_CF_total.shape[0]
 num_periods = M2_CF_total.shape[1]
@@ -86,15 +86,15 @@ num_periods = M2_CF_total.shape[1]
 r_matrix_arr = [ir.r_matrix, ir.r_anti_matrix]
 
 
-for i in [5, 8]:
+for i in [4, 7]:
 	M_seller_array = []
 	M_buyer_array = []
 
-	if i == 5:
+	if i == 4:
 		M_principal = M2_principal 
 		M_coupon = M2_coupon
 		M_total_buyer_payment = M2_total_buyer_payment
-	elif i == 8:
+	elif i == 7:
 		M_principal = M5_principal 
 		M_coupon = M5_coupon
 		M_total_buyer_payment = M5_total_buyer_payment
@@ -125,10 +125,10 @@ for i in [5, 8]:
 		M_buyer_array.append(M_buyer_payments)
 		M_seller_array.append(M_seller_payments)
 
-	if i == 5:
+	if i == 4:
 		M2_avg_buyer_payment = (np.mean(M_buyer_array[0]) + np.mean(M_buyer_array[1])) / 2.0
 		M2_avg_seller_payment = (np.mean(M_seller_array[0]) + np.mean(M_seller_array[1])) / 2.0
-	elif i == 8:
+	elif i == 7:
 		M5_avg_buyer_payment = (np.mean(M_buyer_array[0]) + np.mean(M_buyer_array[1])) / 2.0
 		M5_avg_seller_payment = (np.mean(M_seller_array[0]) + np.mean(M_seller_array[1])) / 2.0
 
