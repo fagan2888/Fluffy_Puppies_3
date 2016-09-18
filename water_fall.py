@@ -106,9 +106,11 @@ def water_fall(B_F_t, FRM_monthly_wac, B_A_t, Libor_t, House_F_m_t, House_A_m_t,
         I_tr[k] = B_tr[k]*(Libor_t+Spread_tr[k])/12
     ES = I - sum(I_tr) #Excess Spread
     ES_init = ES
+    
     if (ES<0):
-        print("Warning: ES<0, setting ES = 0")    
+        print("Warning: In path {} period {},ES<0, ES = {} setting ES = 0".format(i,j,ES))    
         ES = 0
+    Neg_int_tr, _ = waterfall_helper(I, I_tr, 'desc')
     if (ES>DP):
         ES -= DP
         DP = 0
@@ -145,7 +147,7 @@ def water_fall(B_F_t, FRM_monthly_wac, B_A_t, Libor_t, House_F_m_t, House_A_m_t,
     #total_pay = P_F + PP_F + DP_F +P_A + PP_A + DP_A +EPDA
     #total = B_F_t + B_A_t
     CF_total = CF_Principal+CF_Prepay+CF_Default+CF_EPDA + I_tr
-    return CF_total, CF_Principal, CF_Prepay+CF_EPDA, CF_Default, I_tr, B_F_t, B_A_t, B_tr
+    return CF_total, CF_Principal, CF_Prepay+CF_EPDA, CF_Default, I_tr, B_F_t, B_A_t, B_tr, Neg_int_tr
     
 
 
@@ -161,7 +163,7 @@ CF_principal = np.zeros((num_tr,Path, J))
 CF_prepay = np.zeros((num_tr,Path, J))
 CF_default = np.zeros((num_tr,Path, J))
 CF_interest = np.zeros((num_tr,Path, J))
-
+CF_neg_int = np.zeros((num_tr,Path, J))
 
 #i = 0  # ith path
 #j = 0  # jth period
@@ -179,7 +181,7 @@ for i in range(Path):
         House_F_m_t = House_F_m[i,j]
         House_A_m_t = House_A_m[i,j]
         
-        CF_total_ij, CF_principal_ij, CF_prepay_ij, CF_default_ij, CF_interest_ij, B_F_t, B_A_t, B_tr = \
+        CF_total_ij, CF_principal_ij, CF_prepay_ij, CF_default_ij, CF_interest_ij, B_F_t, B_A_t, B_tr , CF_neg_int_ij= \
             water_fall(B_F_t, FRM_monthly_wac, B_A_t, Libor_t, House_F_m_t, House_A_m_t, B_tr)
         
         CF_total[:,i,j]=CF_total_ij
@@ -187,5 +189,5 @@ for i in range(Path):
         CF_prepay[:,i,j]=CF_prepay_ij
         CF_default[:,i,j]=CF_default_ij
         CF_interest[:,i,j]=CF_interest_ij
-
+        CF_neg_int[:,i,j] = CF_neg_int_ij
 
