@@ -137,7 +137,7 @@ sigma = 0.020644080934538542
 
 ## Similate the LIBOR rate with Hull White
 HW = hw.Hull_White()
-num_sims = 100
+num_sims = 1000
 num_months = 315
 T = num_months/12
 dt = 1/12

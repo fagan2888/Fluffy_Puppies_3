@@ -85,7 +85,9 @@ def water_fall(B_F_t, FRM_monthly_wac, B_A_t, Libor_t, House_F_m_t, House_A_m_t,
     PP_F = SMM_P_arr_F[j] * (B_F_t - P_F)
     DP_F = SMM_D(B_F_t, House_F_m_t, j, 'F') * (B_F_t - P_F)
     
-    
+    SMM_P_t = SMM_P_arr_F[j]
+    SMM_D_t = SMM_D(B_F_t, House_F_m_t, j, 'F')
+
     ## ARM
     PM_A = PMT(B_A_t, (Libor_t+ARM_spread)/12, J, j)
     I_A = B_A_t * (Libor_t+ARM_spread)/12
@@ -147,12 +149,13 @@ def water_fall(B_F_t, FRM_monthly_wac, B_A_t, Libor_t, House_F_m_t, House_A_m_t,
     #total_pay = P_F + PP_F + DP_F +P_A + PP_A + DP_A +EPDA
     #total = B_F_t + B_A_t
     CF_total = CF_Principal+CF_Prepay+CF_Default+CF_EPDA + I_tr
-    return CF_total, CF_Principal, CF_Prepay+CF_EPDA, CF_Default, I_tr, B_F_t, B_A_t, B_tr, Neg_int_tr
+    return CF_total, CF_Principal, CF_Prepay+CF_EPDA, CF_Default, I_tr, B_F_t, \
+           B_A_t, B_tr, Neg_int_tr, SMM_P_t, SMM_D_t
     
 
 
 ## dummy variable to be change        
-Libor_m = np.matrix(ir.libor_1m_matrix)
+Libor_m = np.matrix(ir.final_libor_1m_matrix)
 #Libor_m = np.matrix(ir.final_libor_1m_matrix)
 House_F_m = np.matrix(hr.House_F_m)
 House_A_m = np.matrix(hr.House_A_m)
@@ -165,10 +168,12 @@ CF_default = np.zeros((num_tr,Path, J))
 CF_interest = np.zeros((num_tr,Path, J))
 CF_neg_int = np.zeros((num_tr,Path, J))
 
+SMM_P_m = np.zeros((Path, J))
+SMM_D_m = np.zeros((Path, J))
 #i = 0  # ith path
 #j = 0  # jth period
 for i in range(Path):
-    print('.',end='')
+    #print('.',end='')
     #initialization for each path
     B_F_t = 52416155
     B_A_t = 226122657
@@ -181,7 +186,8 @@ for i in range(Path):
         House_F_m_t = House_F_m[i,j]
         House_A_m_t = House_A_m[i,j]
         
-        CF_total_ij, CF_principal_ij, CF_prepay_ij, CF_default_ij, CF_interest_ij, B_F_t, B_A_t, B_tr , CF_neg_int_ij= \
+        CF_total_ij, CF_principal_ij, CF_prepay_ij, CF_default_ij, CF_interest_ij, \
+        B_F_t, B_A_t, B_tr , CF_neg_int_ij, SMM_P_ij, SMM_D_ij= \
             water_fall(B_F_t, FRM_monthly_wac, B_A_t, Libor_t, House_F_m_t, House_A_m_t, B_tr)
         
         CF_total[:,i,j]=CF_total_ij
@@ -190,6 +196,5 @@ for i in range(Path):
         CF_default[:,i,j]=CF_default_ij
         CF_interest[:,i,j]=CF_interest_ij
         CF_neg_int[:,i,j] = CF_neg_int_ij
-
-
-
+        SMM_P_m[i,j] = SMM_P_ij
+        SMM_D_m[i,j] = SMM_D_ij

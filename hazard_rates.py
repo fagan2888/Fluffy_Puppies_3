@@ -133,8 +133,8 @@ beta_P_A = hazard_params_df.loc[(2,3),'ARM prepayment'].values
 
          
 
-SMM_P_F = get_SMM_P_matrices(gamma_P_F, p_P_F, beta_P_F, ir.libor_10yr_lag_3m_matrix, ir.libor_1m_matrix, 'F', ir.num_sims)
-SMM_P_A = get_SMM_P_matrices(gamma_P_A, p_P_A, beta_P_A, ir.libor_10yr_lag_3m_matrix, ir.libor_1m_matrix, 'A', ir.num_sims)
+SMM_P_F = get_SMM_P_matrices(gamma_P_F, p_P_F, beta_P_F, ir.final_libor_10yr_lag_3m_matrix, ir.final_libor_1m_matrix, 'F', ir.num_sims)
+SMM_P_A = get_SMM_P_matrices(gamma_P_A, p_P_A, beta_P_A, ir.final_libor_10yr_lag_3m_matrix, ir.final_libor_1m_matrix, 'A', ir.num_sims)
 
 
 #SMM_P_F = get_SMM_P_matrices(gamma_P_F, p_P_F, beta_P_F, ir.final_libor_10yr_lag_3m_matrix, ir.final_libor_1m_matrix, 'F', ir.num_sims)
