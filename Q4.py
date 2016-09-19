@@ -53,12 +53,12 @@ def Check_Correct_Position(M_buyer_payment, M_seller_payment, tranche):
 M2_principal = 30150000.0
 M2_premium_mult = 33.50
 M2_premium = (M2_principal / 100.0) * M2_premium_mult
-M2_coupon = 17e-4
+M2_coupon = 17e-4/12.0
 
 M5_principal = 15075000.0
 M5_premium_mult = 72.50
 M5_premium = (M5_principal / 100.0) * M5_premium_mult
-M5_coupon = 44e-4
+M5_coupon = 44e-4/12.0
 
 
 """
