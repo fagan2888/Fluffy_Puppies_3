@@ -123,8 +123,8 @@ for i in [4, 7]:		# 4 = M2;  7 = M5
 print (M2_avg_buyer_payment, M2_avg_buyer_payment)
 print (M5_avg_buyer_payment, M5_avg_seller_payment)
 
-Check_Correct_Position(M2_avg_buyer_payment, M2_avg_buyer_payment, tranche)
-Check_Correct_Position(M5_avg_buyer_payment, M5_avg_seller_payment, tranche)
+Check_Correct_Position(M2_avg_buyer_payment, M2_avg_buyer_payment, "M2")
+Check_Correct_Position(M5_avg_buyer_payment, M5_avg_seller_payment, "M5")
 
 """
 	interpret results as which position is more profitable. 
