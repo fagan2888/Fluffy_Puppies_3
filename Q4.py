@@ -17,6 +17,9 @@ def Calc_CDS_Legs(M_principal, M_coupon, M_total_buyer_payment,
 		Do for both M2 and M5.
 		Payments for seller and buyer made at end of each month.
 	"""
+
+	M_total_seller_payment = 0
+
 	for t in range(num_periods):
 		M_missing_principal = 0 	# --> assumption: principal is never guaranteed 
 		M_principal_payment = M_CF_principal[t]
@@ -44,7 +47,7 @@ def Calc_CDS_Legs(M_principal, M_coupon, M_total_buyer_payment,
 
 def Check_Correct_Position(M_buyer_payment, M_seller_payment, tranche):
 		print ("For the " + tranche + " tranche, want to be in the position of CDS ", end=' ')
-		if M_avg_buyer_payment > M_avg_seller_payment:
+		if M_buyer_payment > M_seller_payment:
 			print ("buyer")
 		else:
 			print ("seller")
