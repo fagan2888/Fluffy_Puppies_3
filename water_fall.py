@@ -173,7 +173,6 @@ SMM_D_m = np.zeros((Path, J))
 #i = 0  # ith path
 #j = 0  # jth period
 for i in range(Path):
-    #print('.',end='')
     #initialization for each path
     B_F_t = 52416155
     B_A_t = 226122657
@@ -198,3 +197,5 @@ for i in range(Path):
         CF_neg_int[:,i,j] = CF_neg_int_ij
         SMM_P_m[i,j] = SMM_P_ij
         SMM_D_m[i,j] = SMM_D_ij
+
+print('Finished Importing water_fall')

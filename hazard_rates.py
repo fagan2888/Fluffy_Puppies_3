@@ -136,14 +136,8 @@ beta_P_A = hazard_params_df.loc[(2,3),'ARM prepayment'].values
 SMM_P_F = get_SMM_P_matrices(gamma_P_F, p_P_F, beta_P_F, ir.final_libor_10yr_lag_3m_matrix, ir.final_libor_1m_matrix, 'F', ir.num_sims)
 SMM_P_A = get_SMM_P_matrices(gamma_P_A, p_P_A, beta_P_A, ir.final_libor_10yr_lag_3m_matrix, ir.final_libor_1m_matrix, 'A', ir.num_sims)
 
-
-#SMM_P_F = get_SMM_P_matrices(gamma_P_F, p_P_F, beta_P_F, ir.final_libor_10yr_lag_3m_matrix, ir.final_libor_1m_matrix, 'F', ir.num_sims)
-#SMM_P_A = get_SMM_P_matrices(gamma_P_A, p_P_A, beta_P_A, ir.final_libor_10yr_lag_3m_matrix, ir.final_libor_1m_matrix, 'A', ir.num_sims)
-
 frm_H0 = 52416155/0.856
 arm_H0 = 226122657/0.856
-House_F_m = [house_price_GBM(r_arr, frm_H0) for r_arr in ir.r_matrix]
-House_A_m = [house_price_GBM(r_arr, arm_H0) for r_arr in ir.r_matrix]
 
-#House_F_m = [house_price_GBM(r_arr, frm_H0) for r_arr in ir.final_r_matrix]
-#House_A_m = [house_price_GBM(r_arr, arm_H0) for r_arr in ir.final_r_matrix]
+House_F_m = [house_price_GBM(r_arr, frm_H0) for r_arr in ir.final_r_matrix]
+House_A_m = [house_price_GBM(r_arr, arm_H0) for r_arr in ir.final_r_matrix]

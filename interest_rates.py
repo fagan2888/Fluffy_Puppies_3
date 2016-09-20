@@ -40,6 +40,7 @@ def calibrate_HW_optimization_res():
     opt_res_arr = []
     for k in kappa_inputs:
         for s in sigma_inputs:
+
             opt_res = sp.optimize.minimize(obj_func,(k,s))      
             opt_res_arr.append((opt_res.x,obj_func(opt_res.x)))
             
@@ -82,7 +83,6 @@ def get_libor_matrix_1m(r_matrix, num_sims, num_months):
     return libor_rate_matrix
 
 
-'''
 # Data files setup
 data_z = pd.read_csv("Discount_Factors.csv")
 data_vol = pd.read_csv("Caplet_Vols.csv")
@@ -91,8 +91,6 @@ data_vol = pd.read_csv("Caplet_Vols.csv")
 ## Estimating coeff of term structure
 data_z["poly"] = np.log(data_z["Price"])
 z_OLS = disc_func.OLS(disc_func.power_5(data_z["Maturity"]), data_z["poly"])
-print("my estimation of coefficients are:")
-print(z_OLS.beta)
 (a,b,c,d,e) = z_OLS.beta
 coeff = [a,b,c,d,e]
 
@@ -108,7 +106,7 @@ cap_prices = disc_func.Black_formula(lambda T: disc_func.poly5_to_Z(z_OLS,T), \
                                      data_vol["Maturity"]-delta, r_cap, delta, data_vol["Price/Vols"])
 
 # Q1 Calibrate Hull White
-
+print('Running optimization to calibrate Hull White model...')
 opt_res_df = calibrate_HW_optimization_res()
 
 # Pick the best parameters from above, sigma should take + sign
@@ -118,13 +116,15 @@ kappa, sigma = opt_res_df.iloc[0,0]
 sigma = np.abs(sigma)
 
 #plt.plot(ir.calibrate_HW(0.56,0.028),label='HW Caplet Price')
+
+'''
 plt.plot(calibrate_HW(kappa,sigma),label='HW Caplet Price')
 plt.plot(cap_prices,label='Actual Caplet Price')
 plt.legend()
 plt.show()
 
 
-'''
+
 ## For testing purpose
 coeff = [-0.017913777607645898,
  -0.0031169760803777535,
@@ -134,6 +134,7 @@ coeff = [-0.017913777607645898,
 kappa = 0.30490045697501322
 sigma = 0.020644080934538542
 
+'''
 
 ## Similate the LIBOR rate with Hull White
 HW = hw.Hull_White()
@@ -148,10 +149,11 @@ delta = 0.25
 coeff = coeff
 
 ## Monte Carlo Simulation
+print('Running Monte Carlo simulation to obtain short rates...')
 cum_df_matrix, cum_df_anti_matrix, r_matrix, r_anti_matrix = HW.Monte_Carlo(kappa, sigma, r0, T+10, dt, coeff, num_sims)
 
 final_r_matrix = 0.5 * (r_matrix + r_anti_matrix)
-
+final_cum_df_matrix = 0.5 * (cum_df_matrix + cum_df_anti_matrix)
 
 libor_10yr_lag_3m_matrix = get_libor_matrix_10yr_lag_3m(r_matrix, num_sims, num_months-4+1) #we have 4 numbers already
 libor_10yr_lag_3m_anti_matrix = get_libor_matrix_10yr_lag_3m(r_anti_matrix, num_sims, num_months-3)
@@ -163,8 +165,11 @@ libor_1m_anti_matrix = get_libor_matrix_1m(r_anti_matrix, num_sims, num_months+1
 final_libor_1m_matrix = 0.5 * (libor_1m_matrix + libor_1m_anti_matrix)
 avg_libor_1m_arr = np.asarray(final_libor_1m_matrix.mean(0))[0]
 
-
+'''
 plt.plot(avg_libor_10yr_lag_3m_arr,label=' Avg LIBOR 10yr lag 3m')
 plt.plot(avg_libor_1m_arr,label='Avg LIBOR 1m')
 plt.legend()
 plt.show()
+'''
+
+print('Finished Importing interest_rates')
