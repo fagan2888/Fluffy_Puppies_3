@@ -1,0 +1,13 @@
+Please read the HW3_Report.html file for the report. 
+
+The HW3 modules are 
+	- bond_prices.py
+	- Discount_Functions.py
+	- Hull_White.py
+	- hazard_rates.py
+	- interest_rates.py
+	- water_fall.py
+	- Q4.py
+
+The notebook HW3_Report.ipynb should be run with Jupyter Notebook. You can change the parameters such as number of simulations and other settings. 
+The get_hazard_model_param.m file will run in MATLAB to get the parameters for hazard rate models.
